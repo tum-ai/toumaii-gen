@@ -1,0 +1,41 @@
+# Example config: Adjust source, generation and destination as pleased.
+
+source:
+  type: toucan
+  toucan:
+    dataset_id: Agent-Ark/Toucan-1.5M
+    dataset_revision: null
+    dataset_name: Qwen3
+    size: 1000
+    access_mode: full
+    subset_name: multi-turn
+    toolcall_mode: multi
+    overall_score_threshold: 4.5
+    desired_tools_used_percentage: 1.0
+    order_correctness_required: true
+    use_disk_cache: true
+
+generation:
+  model_id: ibm-granite/granite-4.0-350m
+  backend: auto
+  use_chat_template: true
+  use_disk_cache: true
+  model_ctx: 16384
+  gpu_memory_utilization: 0.8
+  temperature: 0.0
+  max_tokens: 512
+  annotate: true
+  backend_kwargs: {}
+
+output:
+  root_dir: outputs/toucan
+  write_jsonl: true
+  write_csv_preview: true
+
+hub:
+  repo_id: YOUR_ORG/toucan-dpo
+  private: true
+  split: train
+  canonical_config: canonical
+  dpo_config: dpo
+  sft_config: sft
