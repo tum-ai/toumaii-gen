@@ -19,16 +19,12 @@ SFT artifacts plus a reproducibility manifest.
 
 ## Install
 
-From this directory:
+From this directory, install the project with
+[`uv`](https://docs.astral.sh/uv/):
 
-```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
-python -m pip install -e ".[dev]"
+```bash
+uv sync
 ```
-
-For vLLM on a supported Linux host, install the matching PyTorch/vLLM build and
-then install `.[vllm,dev]`.
 
 ## Generate locally
 
@@ -36,9 +32,9 @@ Review `config.yaml`, especially the model, output path, and Toucan sample
 count. For a quick local check, temporarily set `source.toucan.size` to a small
 number such as `2`.
 
-```powershell
-tool-data-gen validate --config config.yaml
-tool-data-gen generate --config config.yaml
+```bash
+uv run tool-data-gen validate --config config.yaml
+uv run tool-data-gen generate --config config.yaml
 ```
 
 Each run creates a timestamped directory under the configured output root with
@@ -51,10 +47,10 @@ Set `hub.repo_id` in `config.yaml` to `<organization>/<dataset>`. Authenticate
 outside the config with `hf auth login` or `HF_TOKEN`, then upload one exact
 local run:
 
-```powershell
-tool-data-gen upload `
-  --config config.yaml `
-  --manifest outputs/toucan/<run-id>/manifest.json `
+```bash
+uv run tool-data-gen upload \
+  --config config.yaml \
+  --manifest outputs/toucan/<run-id>/manifest.json \
   --confirm-private-upload
 ```
 
@@ -63,3 +59,38 @@ requires `hub.private: true`, checks organization access, refuses a public
 target, and verifies privacy after upload.
 
 
+## Post-process generated datasets
+
+The ToolACE cleaner can run independently of the generation command.
+
+No repository coordinates or commit revision are stored in the source tree.
+Before each run, set all three required values in the environment:
+
+```bash
+export TOUCAN_CLEANING_SOURCE_DATASET_ID="<owner>/<source-dataset>"
+export TOUCAN_CLEANING_SOURCE_REVISION="<40-character-commit-SHA>"
+export TOUCAN_CLEANING_DESTINATION_DATASET_ID="<owner>/<destination-dataset>"
+```
+
+The command fails before any Hub access if one is absent. Then review the
+dataset jobs, drop reasons, and long-value threshold in
+`tool_calling_data_generation/post_processing/post_process_rejected.py`. Start
+safely with:
+
+```python
+DROP_ROWS = False
+PUSH_TO_HUB = False
+DELETE_TEMPORARY_WORK_DATA = False
+```
+
+Then run it from the repository root:
+
+```bash
+uv run python -m tool_calling_data_generation.post_processing.post_process_rejected
+```
+
+The dry run still downloads and inspects every source Parquet shard, but writes
+and uploads nothing. Allow enough temporary space; optionally set
+`TOUCAN_CLEANING_TEMP_DIR` to a scratch directory. Only enable row dropping and
+Hub upload after reviewing all warnings and counts, and authenticate first with
+`hf auth login`.
