@@ -16,6 +16,8 @@ html { scroll-padding-top: var(--header-offset, 82px); }
 .site-header nav a { white-space: nowrap; }
 .skip { position: fixed; }
 .response pre mark span { color: inherit; }
+.limitations-indicator::before { content: "+"; }
+.limitations[open] .limitations-indicator::before { content: "−"; }
 .score-guide {
   background: white;
   border-inline-start: 3px solid var(--accent);
