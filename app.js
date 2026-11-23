@@ -11,15 +11,59 @@ const guides={
  adapt:{file:'adapter contract / conceptual mapping',code:'# Map your source into the canonical representation:\n{\n    "conv_id": "source-conversation-id",\n    "turn_id": "target-assistant-turn",\n    "messages": conversation_history,\n    "tool_catalog": available_tools,\n    "chosen_response": reference_response,\n}\n\n# The generator supplies rejected_response.\n# Annotations and provenance live in metadata.',note:'This is a conceptual schema, not an executable adapter. Mirror a supported loader in data_generators/loaders and register it in the configuration and pipeline loader dispatch. Canonical → DPO exports prompt, chosen, rejected and tools.'}
 };
 const $=id=>document.getElementById(id);
-const escapeHTML=s=>s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
+const grammars = {
+  json: /(?<key>"(?:\\.|[^"\\])*"(?=\s*:))|(?<string>"(?:\\.|[^"\\])*")|(?<number>-?\b\d+(?:\.\d+)?(?:e[+-]?\d+)?\b)|(?<keyword>\b(?:true|false|null)\b)/gi,
+  shell: /(?<comment>#[^\n]*)|(?<string>"(?:\\.|[^"\\])*"|'[^']*')|(?<keyword>^(?:git|cd|uv)\b)|(?<key>--[\w-]+)/gm,
+  python: /(?<comment>#[^\n]*)|(?<string>"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')|(?<keyword>\b(?:from|import|for|in|print|True|False|None)\b)|(?<number>\b\d+(?:\.\d+)?\b)/g,
+  bibtex: /(?<keyword>@[a-z]+)|(?<key>\b[a-z]+(?=\s*=))|(?<number>\b\d{4}\b)/gi,
+};
+
+function renderCode(element, source, language, difference) {
+  const fragment = document.createDocumentFragment();
+  const start = difference ? source.indexOf(difference) : -1;
+  const end = start < 0 ? -1 : start + difference.length;
+  const mark = document.createElement('mark');
+  function append(text, token, parent) {
+    if (!text) return;
+    if (!token) {
+      parent.append(text);
+      return;
+    }
+    const span = document.createElement('span');
+    span.className = `token-${token}`;
+    span.textContent = text;
+    parent.append(span);
+  }
+  function add(text, offset, token) {
+    if (start < 0 || offset >= end || offset + text.length <= start) {
+      append(text, token, fragment);
+      return;
+    }
+    const left = Math.max(0, start - offset);
+    const right = Math.min(text.length, end - offset);
+    append(text.slice(0, left), token, fragment);
+    if (!mark.parentNode) fragment.append(mark);
+    append(text.slice(left, right), token, mark);
+    append(text.slice(right), token, fragment);
+  }
+  let offset = 0;
+  const grammar = grammars[language];
+  for (const match of grammar ? source.matchAll(grammar) : []) {
+    add(source.slice(offset, match.index), offset);
+    add(match[0], match.index, Object.keys(match.groups).find(key => match.groups[key] !== undefined));
+    offset = match.index + match[0].length;
+  }
+  add(source.slice(offset), offset);
+  element.replaceChildren(fragment);
+}
 let activeExample='case',activeGuide='generate';
-function highlight(code,term){const safe=escapeHTML(code);return term?safe.replace(escapeHTML(term),'<mark>'+escapeHTML(term)+'</mark>'):safe;}
 function replay(){document.querySelectorAll('.response').forEach(el=>{el.classList.remove('animate');void el.offsetWidth;el.classList.add('animate');});}
-function showExample(key){activeExample=key;const e=examples[key];document.querySelectorAll('[data-example]').forEach(b=>{const selected=b.dataset.example===key;b.setAttribute('aria-selected',selected);b.tabIndex=selected?0:-1;});$('example-panel').setAttribute('aria-labelledby','tab-'+key);$('example-meta').textContent=e.meta;$('example-prompt').textContent=e.prompt;$('tool-feedback').textContent=e.feedback||'';$('generator-name').textContent=e.model;$('chosen-code').innerHTML=highlight(e.chosen,e.highlight[0]);$('rejected-code').innerHTML=highlight(e.rejected,e.highlight[1]);$('rejected-reward').textContent=e.reward.toFixed(2);$('rejected-meter').style.setProperty('--value',e.reward*100+'%');$('example-explanation').textContent=e.explanation;replay();}
-function showGuide(key){activeGuide=key;const g=guides[key];document.querySelectorAll('[data-guide]').forEach(b=>{const selected=b.dataset.guide===key;b.setAttribute('aria-selected',selected);b.tabIndex=selected?0:-1;});$('guide-panel').setAttribute('aria-labelledby','guide-'+key);$('code-filename').textContent=g.file;$('quickstart-code').textContent=g.code;$('guide-note').textContent=g.note;$('copy-code').textContent='Copy ⧉';}
+function showExample(key){activeExample=key;const e=examples[key];document.querySelectorAll('[data-example]').forEach(b=>{const selected=b.dataset.example===key;b.setAttribute('aria-selected',selected);b.tabIndex=selected?0:-1;});$('example-panel').setAttribute('aria-labelledby','tab-'+key);$('example-meta').textContent=e.meta;$('example-prompt').textContent=e.prompt;$('tool-feedback').textContent=e.feedback||'';$('generator-name').textContent=e.model;renderCode($('chosen-code'),e.chosen,'json',e.highlight[0]);renderCode($('rejected-code'),e.rejected,key==='noTool'?'plain':'json',e.highlight[1]);$('rejected-reward').textContent=e.reward.toFixed(2);$('rejected-meter').style.setProperty('--value',e.reward*100+'%');$('example-explanation').textContent=e.explanation;replay();}
+function showGuide(key){activeGuide=key;const g=guides[key];document.querySelectorAll('[data-guide]').forEach(b=>{const selected=b.dataset.guide===key;b.setAttribute('aria-selected',selected);b.tabIndex=selected?0:-1;});$('guide-panel').setAttribute('aria-labelledby','guide-'+key);$('code-filename').textContent=g.file;renderCode($('quickstart-code'),g.code,key==='generate'?'shell':'python');$('guide-note').textContent=g.note;$('copy-code').textContent='Copy ⧉';}
 function showFigure(key){const composition=key==='composition';document.querySelectorAll('[data-figure]').forEach(b=>{const selected=b.dataset.figure===key;b.setAttribute('aria-selected',selected);b.tabIndex=selected?0:-1;});$('paper-figure').setAttribute('aria-labelledby','figure-'+key);$('figure-image').src='assets/'+key+'.svg';$('full-figure').href='assets/'+key+'.svg';$('figure-image').alt=composition?'Original paper figure: preference pair composition across source partitions, six generator models and four interaction categories':'Original paper figure: rejected-response ToolRL reward distributions by generator model and source partition';$('figure-caption').textContent=composition?'From the paper: composition across generator models and interaction categories for Kimi-K2, OSS and Qwen.':'From the paper: rejected-response ToolRL reward distributions, pooled across interaction categories. Chosen-response rewards are uniformly 1.0.';}
 function setupTabs(selector,attribute,callback,vertical=false){const buttons=[...document.querySelectorAll(selector)];buttons.forEach((button,index)=>{button.addEventListener('click',()=>callback(button.dataset[attribute]));button.addEventListener('keydown',event=>{let target;if(event.key===(vertical?'ArrowDown':'ArrowRight'))target=(index+1)%buttons.length;else if(event.key===(vertical?'ArrowUp':'ArrowLeft'))target=(index-1+buttons.length)%buttons.length;else if(event.key==='Home')target=0;else if(event.key==='End')target=buttons.length-1;if(target!==undefined){event.preventDefault();buttons[target].focus();callback(buttons[target].dataset[attribute]);}});});}
 setupTabs('[data-example]','example',showExample);setupTabs('[data-guide]','guide',showGuide,true);setupTabs('[data-figure]','figure',showFigure);$('replay').addEventListener('click',replay);
 $('copy-code').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(guides[activeGuide].code);$('copy-code').textContent='Copied ✓';$('announcement').textContent='Quickstart code copied.';setTimeout(()=>$('copy-code').textContent='Copy ⧉',2200);}catch{const range=document.createRange();range.selectNodeContents($('quickstart-code'));const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);$('copy-code').textContent='Code selected';$('announcement').textContent='Copy unavailable. Code selected; press Control+C or Command+C.';}});
 showExample(activeExample);showGuide(activeGuide);
+renderCode($('citation-text'),$('citation-text').textContent,'bibtex');
 $('copy-citation').addEventListener('click',async()=>{const text=$('citation-text').textContent;try{await navigator.clipboard.writeText(text);$('copy-citation').textContent='Copied ✓';$('announcement').textContent='BibTeX copied.';}catch{const range=document.createRange();range.selectNodeContents($('citation-text'));const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);$('copy-citation').textContent='Select & copy';$('announcement').textContent='BibTeX selected; press Control+C or Command+C.';}});

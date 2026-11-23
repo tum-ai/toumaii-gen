@@ -11,7 +11,7 @@ From this folder:
 python3 -m http.server 8765
 ```
 
-Open http://localhost:8765. No build or dependencies are required. Google Fonts is optional; system fallbacks work offline.
+Open http://localhost:8765. No build or dependencies are required. The theme follows the device by default; visitors can choose Light or Dark in the header, or return to System. IBM Plex Sans and IBM Plex Mono load from Google Fonts when available; system fallbacks work offline.
 
 ## Deploy in tum-ai/toumaii-gen
 
@@ -35,7 +35,8 @@ The data-loading example reads an actual generator DPO export; released Hub conf
 
 - `index.html`: research narrative, results, author attribution and links.
 - `style.css`: responsive design and motion; respects reduced-motion settings.
-- `app.js`: four qualitative examples, figure tabs, keyboard navigation and copyable guides.
+- `app.js`: four qualitative examples, figure tabs, keyboard navigation and syntax highlighting for the examples, guides and citation.
+- `theme.js`: device-aware theme overrides and sticky-header anchor spacing.
 - `assets/`: supplied paper figures and the licensed Toumaï illustration, used as the emblem and favicon.
 
 ## Academic revision
