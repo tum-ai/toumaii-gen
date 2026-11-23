@@ -11,6 +11,13 @@ const guides={
  adapt:{file:'adapter contract / conceptual mapping',code:'# Map your source into the canonical representation:\n{\n    "conv_id": "source-conversation-id",\n    "turn_id": "target-assistant-turn",\n    "messages": conversation_history,\n    "tool_catalog": available_tools,\n    "chosen_response": reference_response,\n}\n\n# The generator supplies rejected_response.\n# Annotations and provenance live in metadata.',note:'This is a conceptual schema, not an executable adapter. Mirror a supported loader in data_generators/loaders and register it in the configuration and pipeline loader dispatch. Canonical → DPO exports prompt, chosen, rejected and tools.'}
 };
 const $=id=>document.getElementById(id);
+const header = document.querySelector('.site-header');
+const updateHeaderOffset = () => {
+  document.documentElement.style.setProperty('--header-offset', `${header.offsetHeight + 16}px`);
+};
+updateHeaderOffset();
+new ResizeObserver(updateHeaderOffset).observe(header);
+
 const grammars = {
   json: /(?<key>"(?:\\.|[^"\\])*"(?=\s*:))|(?<string>"(?:\\.|[^"\\])*")|(?<number>-?\b\d+(?:\.\d+)?(?:e[+-]?\d+)?\b)|(?<keyword>\b(?:true|false|null)\b)/gi,
   shell: /(?<comment>#[^\n]*)|(?<string>"(?:\\.|[^"\\])*"|'[^']*')|(?<keyword>^(?:git|cd|uv)\b)|(?<key>--[\w-]+)/gm,
