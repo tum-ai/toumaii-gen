@@ -30,6 +30,15 @@ model-generated alternative. For example, a candidate may call the correct price
 `vs_currency="USD"` where the tool schema expects `"usd"`. See the
 [interactive examples](https://tum-ai.github.io/toumaii-gen/#examples) for more cases and their ToolRL rewards.
 
+### Quickstart
+
+Load any release directly with Hugging Face `datasets`:
+
+```python
+from datasets import load_dataset
+
+ds = load_dataset("tum-ai/toumaii-toucan-qwen")
+
 ## Repository layout
 
 - [`config.yaml`](config.yaml) defines the source, generation backend, and outputs.
@@ -129,6 +138,7 @@ If you use TOUMAII or TOUMAII-Gen, please cite the paper.
   eprint = {2611.26722},
   archivePrefix = {arXiv},
   primaryClass = {cs.AI},
-  url = {https://arxiv.org/abs/2611.26722}
+  url = {https://arxiv.org/abs/2611.26722},
+  note = {Accepted to the 2nd Workshop on Agentic AI Benchmarks and Applications for Enterprise Tasks (AABA4ET) at NeurIPS 2026}
 }
 ```
