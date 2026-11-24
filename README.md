@@ -32,12 +32,23 @@ model-generated alternative. For example, a candidate may call the correct price
 
 ### Quickstart
 
-Load any release directly with Hugging Face `datasets`:
+Stream or load a release with Hugging Face `datasets`:
 
 ```python
 from datasets import load_dataset
 
-ds = load_dataset("tum-ai/toumaii-toucan-qwen")
+# TOUMAII-Toucan: choose a generator config (gemma4_E2B, granite4_350m,
+# granite4_1b, granite4_3b, qwen3_0.6B, qwen3_1.7B) and an interaction split
+# (singleturn_singlecall, singleturn_multicall, multiturn_singlecall, multiturn_multicall)
+ds = load_dataset(
+    "tum-ai/toumaii-toucan-qwen",
+    "gemma4_E2B",
+    split="singleturn_singlecall",
+    streaming=True,
+)
+
+# TOUMAII-ACE: uses the "default" config and "train" split
+ace = load_dataset("tum-ai/toumaii-toolace", "default", split="train", streaming=True)
 ```
 
 ## Repository layout
@@ -131,15 +142,17 @@ If you use TOUMAII or TOUMAII-Gen, please cite the paper.
 
 ```bibtex
 @misc{poetzsch2026toumaii,
-  title = {{TOUMAII}: A 4.5M-Pair Tool-Calling Preference Dataset
-           and Its Source-Agnostic Generator},
-  author = {Moritz Pötzsch and Andrea Gentilini and Lisa Rossgoderer and
-            Tom Osterfeld and Kesava Prasad Sanjivi Arul and Swanand Ravindra Kadhe},
-  year = {2026},
-  eprint = {2611.26722},
+  title         = {{TOUMAII}: A {4.5M}-Pair Tool-Calling Preference Dataset
+                   and Its Source-Agnostic Generator},
+  author        = {P{\"o}tzsch, Moritz and Gentilini, Andrea and Rossgoderer, Lisa and
+                   Osterfeld, Tom and Arul, Kesava Prasad Sanjivi and Kadhe, Swanand Ravindra},
+  year          = {2026},
+  howpublished  = {arXiv preprint arXiv:2611.26722},
+  eprint        = {2611.26722},
   archivePrefix = {arXiv},
-  primaryClass = {cs.AI},
-  url = {https://arxiv.org/abs/2611.26722},
-  note = {Accepted to the 2nd Workshop on Agentic AI Benchmarks and Applications for Enterprise Tasks (AABA4ET) at NeurIPS 2026}
+  primaryClass  = {cs.AI},
+  doi           = {10.48550/arXiv.2611.26722},
+  url           = {https://arxiv.org/abs/2611.26722},
+  note          = {Accepted to the 2nd Workshop on Agentic AI Benchmarks and Applications for Enterprise Tasks (AABA4ET) at NeurIPS 2026}
 }
 ```
