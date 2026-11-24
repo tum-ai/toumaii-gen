@@ -27,7 +27,7 @@ To update the site, commit and push changes to `gh-pages`. Keep `.nojekyll` at t
 - Exact count: 4,515,503 retained pairs. Counts and validation results match the supplied manuscript, not unrelated workspace experiments.
 - Examples are abridged appendix examples, with their reported ToolRL rewards; generation is not executed in the browser.
 - Generator quickstart checked against repository README/config and export schema at source revision recorded in SOURCE_REVISION.txt.
-- No invented paper DOI, arXiv identifier, conference acceptance or dataset identifier. Add a public paper link when available.
+- Paper: [arXiv:2611.26722](https://arxiv.org/abs/2611.26722), accepted to the [NeurIPS 2026 AABA4ET Workshop](https://marscod.github.io/AABA4ET.NeurIPS.2026/accepted-papers.html).
 
 The data-loading example reads an actual generator DPO export; released Hub configurations may differ and are intentionally delegated to their dataset cards.
 
@@ -40,6 +40,6 @@ The data-loading example reads an actual generator DPO export; released Hub conf
 
 ## Academic revision
 
-Paper title and author/affiliation block; abstract summary; contributions; canonical generation notation; reward definition and filtering details; exact dataset counts; controlled DPO+SFT experimental protocol; limitations; manuscript BibTeX and selected references. No acceptance claim or unverified paper link is added.
+Paper title and author/affiliation block; abstract summary; contributions; canonical generation notation; reward definition and filtering details; exact dataset counts; controlled DPO+SFT experimental protocol; limitations; arXiv BibTeX and selected references.
 
 The Toumaï illustration is by Sisyphos23, based on Mateus Zica, under CC BY-SA 3.0. See assets/ATTRIBUTION.md and the on-page footer.
