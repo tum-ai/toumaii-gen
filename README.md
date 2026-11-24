@@ -1,21 +1,41 @@
-# Tool-calling data generation
+# TOUMAII-Gen
 
-Standalone package for generating canonical, DPO, and SFT tool-calling
-datasets. 
+**TOUMAII-Gen** converts tool-calling demonstrations into reference-scored preference pairs for direct
+preference optimization (DPO). It supports Toucan, ToolACE, and existing canonical or DPO datasets.
+A lightweight source adapter can add support for another dataset.
 
-## Layout
+[Project page](https://tum-ai.github.io/toumaii-gen/) · [Paper on arXiv](https://arxiv.org/abs/2611.26722) · [Hugging Face collection](https://huggingface.co/collections/tum-ai/toumaii-generated-datasets-6ae48f51f5d7bb870b417cc0)
 
-```text
-config.yaml
-tool_calling_data_generation/
-tests/
-pyproject.toml
-README.md
-```
+Accepted to the [NeurIPS 2026 AABA4ET Workshop](https://marscod.github.io/AABA4ET.NeurIPS.2026/accepted-papers.html).
 
-The package supports Toucan, ToolACE, and existing canonical/DPO datasets as
-inputs. To generate preference data from any other source, implement a lightweight adapter mirroring the Toucan/ToolACE loaders. Generation uses Transformers or vLLM, then writes canonical, DPO, and
-SFT artifacts plus a reproducibility manifest.
+![TOUMAII-Gen pipeline from tool-calling demonstrations through candidate generation, assessment, filtering, and training exports](docs/assets/pipeline.png)
+
+*TOUMAII-Gen overview, Figure 1 in the paper. Source adapters convert demonstrations into a shared format. The generator produces alternatives, then scores and filters the resulting pairs for canonical, DPO, and SFT export.*
+
+## Released datasets
+
+[TOUMAII-Toucan](https://huggingface.co/collections/tum-ai/toumaii-toucan-6ae37226be696553bf45f1a5) contains **4,515,503** preference pairs from quality-filtered
+[Toucan-1.5M](https://huggingface.co/datasets/Agent-Ark/Toucan-1.5M) trajectories. Applying the same pipeline to
+[ToolACE](https://huggingface.co/datasets/Team-ACE/ToolACE) yielded **100,846** additional pairs in TOUMAII-ACE.
+
+| Release | Hugging Face dataset ID | Preference pairs |
+| --- | --- | --- |
+| [TOUMAII-Toucan · Kimi-K2](https://huggingface.co/datasets/tum-ai/toumaii-toucan-kimi) | `tum-ai/toumaii-toucan-kimi` | 1,369,232 |
+| [TOUMAII-Toucan · OSS](https://huggingface.co/datasets/tum-ai/toumaii-toucan-oss) | `tum-ai/toumaii-toucan-oss` | 1,734,057 |
+| [TOUMAII-Toucan · Qwen](https://huggingface.co/datasets/tum-ai/toumaii-toucan-qwen) | `tum-ai/toumaii-toucan-qwen` | 1,412,214 |
+| [TOUMAII-ACE](https://huggingface.co/datasets/tum-ai/toumaii-toolace) | `tum-ai/toumaii-toolace` | 100,846 |
+
+Each pair keeps the conversation context and tool definitions alongside a reference response and a
+model-generated alternative. For example, a candidate may call the correct price lookup with
+`vs_currency="USD"` where the tool schema expects `"usd"`. See the
+[interactive examples](https://tum-ai.github.io/toumaii-gen/#examples) for more cases and their ToolRL rewards.
+
+## Repository layout
+
+- [`config.yaml`](config.yaml) defines the source, generation backend, and outputs.
+- [`tool_calling_data_generation/`](tool_calling_data_generation/) contains source adapters,
+  Transformers and vLLM generation backends, scoring, and export.
+- [`tests/`](tests/) covers the generator and its integrations.
 
 ## Install
 
@@ -94,3 +114,21 @@ and uploads nothing. Allow enough temporary space; optionally set
 `TOUCAN_CLEANING_TEMP_DIR` to a scratch directory. Only enable row dropping and
 Hub upload after reviewing all warnings and counts, and authenticate first with
 `hf auth login`.
+
+## Citation
+
+If you use TOUMAII or TOUMAII-Gen, please cite the paper.
+
+```bibtex
+@misc{poetzsch2026toumaii,
+  title = {{TOUMAII}: A 4.5M-Pair Tool-Calling Preference Dataset
+           and Its Source-Agnostic Generator},
+  author = {Moritz Pötzsch and Andrea Gentilini and Lisa Rossgoderer and
+            Tom Osterfeld and Kesava Prasad Sanjivi Arul and Swanand Ravindra Kadhe},
+  year = {2026},
+  eprint = {2611.26722},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.AI},
+  url = {https://arxiv.org/abs/2611.26722}
+}
+```
