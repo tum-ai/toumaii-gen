@@ -38,6 +38,7 @@ Load any release directly with Hugging Face `datasets`:
 from datasets import load_dataset
 
 ds = load_dataset("tum-ai/toumaii-toucan-qwen")
+```
 
 ## Repository layout
 
