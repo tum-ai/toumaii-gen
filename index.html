@@ -19,7 +19,19 @@
 <h1>A 4.5M-Pair Tool-Calling Preference Dataset<br class="desktop-break"> and Its Source-Agnostic Generator</h1>
 <div class="author-list"><span>Moritz Pötzsch<sup>1,2,†</sup></span><span>Andrea Gentilini<sup>1,2,3,†</sup></span><span>Lisa Rossgoderer<sup>1,†</sup></span><span>Tom Osterfeld<sup>1,2,†</sup></span><span>Kesava Prasad Sanjivi Arul<sup>1,2,†</sup></span><span>Swanand Ravindra Kadhe<sup>4</sup></span></div>
 <p class="affiliation-list"><span><sup>1</sup>TUM.ai</span><span><sup>2</sup>Technical University of Munich</span><span><sup>3</sup>Zuse School ELIZA</span><span><sup>4</sup>IBM Research</span></p><p class="contribution-note">† Equal contribution</p>
-<div class="actions"><a class="button primary" href="https://github.com/tum-ai/toumaii-gen" target="_blank" rel="noopener"><span aria-hidden="true">⌘</span> Code</a><a class="button primary" href="https://huggingface.co/collections/tum-ai/toumaii-generated-datasets" target="_blank" rel="noopener"><span aria-hidden="true">▤</span> Datasets</a><a class="button primary" href="https://arxiv.org/html/2611.26722v1" target="_blank" rel="noopener">Paper <span aria-hidden="true">↗</span></a><a class="button secondary" href="#start">Quickstart</a><a class="button secondary" href="#citation">BibTeX</a></div>
+<div class="actions">
+<a class="button primary" href="https://github.com/tum-ai/toumaii-gen" target="_blank" rel="noopener"><span aria-hidden="true">⌘</span> Code</a>
+<a class="button primary" href="https://huggingface.co/collections/tum-ai/toumaii-generated-datasets" target="_blank" rel="noopener"><span aria-hidden="true">▤</span> Datasets</a>
+<a class="button primary" href="https://arxiv.org/abs/2611.26722" target="_blank" rel="noopener">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+<path d="M13 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10z"/>
+<path d="M13 3v7h7M8 14h8m-8 3h5"/>
+</svg>
+Paper
+</a>
+<a class="button secondary" href="#start">Quickstart</a>
+<a class="button secondary" href="#citation">BibTeX</a>
+</div>
 <p class="paper-venue">Accepted to the <a href="https://marscod.github.io/AABA4ET.NeurIPS.2026/accepted-papers.html" target="_blank" rel="noopener">NeurIPS 2026 AABA4ET Workshop</a></p>
 <p class="hero-summary">Converting tool-use demonstrations into reference-annotated preference pairs,<br class="desktop-break"> with naturally occurring model-generated deviations.</p>
 <figure class="teaser"><a href="assets/pipeline.pdf" target="_blank" rel="noopener"><img src="assets/pipeline.png" width="2400" height="904" alt="TOUMAII-Gen overview: source adapters map demonstrations to a canonical format; a model pool generates alternatives; post-processing assesses and filters pairs for canonical, DPO and SFT export."></a><figcaption><strong>TOUMAII-Gen.</strong> A source-agnostic pipeline converts tool-calling demonstrations into preference pairs. The same core supports Toucan, ToolACE and new sources through lightweight adapters.</figcaption></figure>
