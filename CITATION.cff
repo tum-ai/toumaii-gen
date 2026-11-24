@@ -2,6 +2,7 @@ cff-version: 1.2.0
 message: "If you use TOUMAII or TOUMAII-Gen, please cite the paper below."
 title: "TOUMAII: A 4.5M-Pair Tool-Calling Preference Dataset and Its Source-Agnostic Generator"
 type: software
+license: GPL-3.0-or-later
 authors:
   - family-names: "Pötzsch"
     given-names: "Moritz"

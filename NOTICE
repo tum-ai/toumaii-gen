@@ -1,0 +1,69 @@
+TOUMAII-Gen
+Copyright (C) 2026 Moritz Pötzsch, Andrea Gentilini, Lisa Rossgoderer, Tom Osterfeld,
+Kesava Prasad Sanjivi Arul, and Swanand Ravindra Kadhe
+
+This repository and the datasets it produces incorporate material from the
+third-party datasets listed below. Those portions remain subject to their
+original licenses; the TOUMAII contributions are licensed as described in the
+"License" section of README.md.
+
+
+1. Upstream datasets
+
+  Agent-Ark/Toucan-1.5M
+    Source:  https://huggingface.co/datasets/Agent-Ark/Toucan-1.5M
+    License: Apache License 2.0 (see LICENSE-APACHE)
+    Used as: source of tool-calling demonstrations for TOUMAII-Toucan.
+
+  Team-ACE/ToolACE
+    Source:  https://huggingface.co/datasets/Team-ACE/ToolACE
+    License: Apache License 2.0 (see LICENSE-APACHE)
+    Used as: source of tool-calling demonstrations for TOUMAII-ACE.
+
+  Portions of the released datasets that are copied from or derived from these
+  sources remain available under Apache License 2.0. Nothing in the TOUMAII
+  licenses restricts the rights granted to you under Apache License 2.0 for
+  those portions.
+
+
+2. Statement of changes
+
+  Material from the upstream datasets has been modified. Relative to the
+  originals, the pipeline:
+
+    - converts records into a shared canonical format;
+    - generates alternative model responses for each demonstration;
+    - scores reference and alternative responses;
+    - filters pairs by score;
+    - exports canonical, DPO, and SFT variants (Parquet, optional JSONL/CSV);
+    - records run metadata in manifest.json.
+
+  Files are therefore changed files within the meaning of section 4(b) of the
+  Apache License 2.0.
+
+
+3. Model-generated content
+
+  Alternative responses were generated with third-party language models,
+  including Kimi-K2, Qwen, and OSS models. Use of those outputs is subject to
+  the respective model licenses and acceptable-use policies. The upstream
+  Toucan-1.5M release already redistributes outputs from these models under
+  Apache License 2.0.
+
+
+4. License scope
+
+  Code (tool_calling_data_generation/, tests/, configuration)   GPL-3.0-or-later (LICENSE)
+  Documentation, README, docs/, figures                         CC BY-SA 4.0      (LICENSE-DOCS)
+  TOUMAII dataset contributions (pairs, labels, alternatives)   CC BY-SA 4.0      (LICENSE-DATA)
+  Upstream-derived dataset rows                                 Apache-2.0        (LICENSE-APACHE)
+
+
+5. Model training
+
+  As licensor of the TOUMAII dataset contributions, we additionally permit the
+  use of those contributions to train, fine-tune, or evaluate machine-learning
+  models without the ShareAlike obligation of CC BY-SA 4.0 extending to the
+  resulting model weights or model outputs. ShareAlike continues to apply to
+  redistribution of the dataset itself and to Adapted Material derived from it,
+  such as filtered, relabeled, augmented, or re-curated versions of the dataset.

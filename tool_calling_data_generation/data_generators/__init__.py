@@ -1,3 +1,8 @@
+# Copyright (C) 2026 Moritz Pötzsch, Andrea Gentilini, Lisa Rossgoderer, Tom Osterfeld,
+# Kesava Prasad Sanjivi Arul, and Swanand Ravindra Kadhe
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """Generation pipeline, loaders, backends, extractors, and canonical models."""
 
 __all__ = ["build_dpo_dataset"]

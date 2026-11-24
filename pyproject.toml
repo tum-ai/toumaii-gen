@@ -7,6 +7,8 @@ name = "tool-calling-data-generation"
 version = "0.1.0"
 description = "Standalone tool-calling SFT/DPO dataset generation pipeline"
 readme = "README.md"
+license = "GPL-3.0-or-later"
+license-files = ["LICENSE", "LICENSE-DOCS"]
 requires-python = ">=3.12,<3.13"
 dependencies = [
   "accelerate==1.13.0",

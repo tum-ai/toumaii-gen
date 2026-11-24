@@ -143,3 +143,36 @@ If you use TOUMAII or TOUMAII-Gen, please cite the paper.
   note = {Accepted to the 2nd Workshop on Agentic AI Benchmarks and Applications for Enterprise Tasks (AABA4ET) at NeurIPS 2026}
 }
 ```
+
+## License
+
+Copyright (C) 2026 Moritz Pötzsch, Andrea Gentilini, Lisa Rossgoderer, Tom Osterfeld,
+Kesava Prasad Sanjivi Arul, and Swanand Ravindra Kadhe.
+
+This repository is licensed by content type:
+
+- **Code** — `tool_calling_data_generation/`, `tests/`, and configuration files are
+  licensed under the [GNU General Public License v3.0 or later](LICENSE). See
+  [`LICENSE`](LICENSE) for the full text.
+- **Documentation and figures** — `README.md`, `docs/`, and this repository's prose are
+  licensed under [CC BY-SA 4.0](LICENSE-DOCS). See [`LICENSE-DOCS`](LICENSE-DOCS) for the
+  full text.
+- **Dataset contributions** — the preference pairs, reference scores, and generated
+  alternatives produced by this pipeline are licensed under
+  [CC BY-SA 4.0](LICENSE-DATA). See [`LICENSE-DATA`](LICENSE-DATA) for the full text.
+- **Upstream-derived data** — rows copied from or derived from
+  [Toucan-1.5M](https://huggingface.co/datasets/Agent-Ark/Toucan-1.5M) and
+  [ToolACE](https://huggingface.co/datasets/Team-ACE/ToolACE) remain under
+  [Apache-2.0](LICENSE-APACHE). See [`NOTICE`](NOTICE) for attribution, the statement of
+  changes, and the full scope mapping.
+
+`docs/assets/pipeline.png` is Figure 1 from the paper and is reproduced from the
+[CC BY-SA licensed publication](https://arxiv.org/abs/2611.26722); attribute it to the
+paper's authors.
+
+ShareAlike applies to the dataset itself: filtered, relabeled, augmented, or re-curated
+versions must be released under CC BY-SA 4.0. Training, fine-tuning, or evaluating a model
+on the dataset does not by itself extend ShareAlike to the model's weights or outputs. See
+[`NOTICE`](NOTICE) for the exact wording, and
+[`docs/dataset-license.md`](docs/dataset-license.md) for the card text to use on Hugging
+Face.

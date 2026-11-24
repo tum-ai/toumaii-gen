@@ -1,3 +1,8 @@
+# Copyright (C) 2026 Moritz Pötzsch, Andrea Gentilini, Lisa Rossgoderer, Tom Osterfeld,
+# Kesava Prasad Sanjivi Arul, and Swanand Ravindra Kadhe
+#
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 """
 Generic tool-call extractor that delegates to vLLM's ``ToolParserManager``
 first, then falls back to regex + JSON salvage when the primary parser fails.
