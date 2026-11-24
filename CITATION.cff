@@ -1,0 +1,40 @@
+cff-version: 1.2.0
+message: "If you use TOUMAII or TOUMAII-Gen, please cite the paper below."
+title: "TOUMAII: A 4.5M-Pair Tool-Calling Preference Dataset and Its Source-Agnostic Generator"
+type: software
+authors:
+  - family-names: "Pötzsch"
+    given-names: "Moritz"
+  - family-names: "Gentilini"
+    given-names: "Andrea"
+  - family-names: "Rossgoderer"
+    given-names: "Lisa"
+  - family-names: "Osterfeld"
+    given-names: "Tom"
+  - family-names: "Sanjivi Arul"
+    given-names: "Kesava Prasad"
+  - family-names: "Kadhe"
+    given-names: "Swanand Ravindra"
+repository-code: "https://github.com/tum-ai/toumaii-gen"
+url: "https://tum-ai.github.io/toumaii-gen/"
+preferred-citation:
+  type: article
+  title: "TOUMAII: A 4.5M-Pair Tool-Calling Preference Dataset and Its Source-Agnostic Generator"
+  authors:
+    - family-names: "Pötzsch"
+      given-names: "Moritz"
+    - family-names: "Gentilini"
+      given-names: "Andrea"
+    - family-names: "Rossgoderer"
+      given-names: "Lisa"
+    - family-names: "Osterfeld"
+      given-names: "Tom"
+    - family-names: "Sanjivi Arul"
+      given-names: "Kesava Prasad"
+    - family-names: "Kadhe"
+      given-names: "Swanand Ravindra"
+  journal: "arXiv preprint arXiv:2611.26722"
+  year: 2026
+  month: 11
+  url: "https://arxiv.org/abs/2611.26722"
+  notes: "Accepted to the 2nd Workshop on Agentic AI Benchmarks and Applications for Enterprise Tasks (AABA4ET) at NeurIPS 2026"
