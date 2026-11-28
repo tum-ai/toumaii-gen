@@ -1,0 +1,37 @@
+# Example config: ToolACE source, small sample for a quick local run.
+# Run with: uv run --extra trl tool-data-gen validate --config config.toolace.yaml
+
+source:
+  type: toolace
+  toolace:
+    # Raw Team-ACE/ToolACE conversations to read before sanitization; malformed
+    # rows are dropped, so the final row count can be smaller.
+    size: 10
+    use_disk_cache: true
+
+generation:
+  model_id: ibm-granite/granite-4.0-350m
+  backend: auto
+  use_chat_template: true
+  use_disk_cache: true
+  model_ctx: 16384
+  gpu_memory_utilization: 0.8
+  temperature: 0.0
+  max_tokens: 512
+  annotate: true
+  backend_kwargs: {}
+
+output:
+  root_dir: outputs/toolace
+  write_jsonl: true
+  write_csv_preview: true
+
+hub:
+  # No upload target: this config is for local runs only. Set to
+  # "<organization>/<dataset>" (with private: true) to enable `tool-data-gen upload`.
+  repo_id: null
+  private: true
+  split: train
+  canonical_config: canonical
+  dpo_config: dpo
+  sft_config: sft

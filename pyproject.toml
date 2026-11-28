@@ -9,10 +9,8 @@ description = "Standalone tool-calling SFT/DPO dataset generation pipeline"
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
-  "accelerate==1.13.0",
-  "datasets==5.0.0",
   "fsspec[http]>=2024.6.1,<=2025.9.0",
-  "huggingface-hub>=0.34,<2",
+  "huggingface-hub>=0.34,<3",
   "json-repair>=0.39",
   "numpy>=2",
   "pandas>=2.2",
@@ -21,13 +19,49 @@ dependencies = [
   "pyyaml>=6.0",
   "requests>=2.32",
   "scipy>=1.12",
-  "torch==2.11.0",
   "tqdm>=4.66",
-  "transformers==5.10.2",
-  "vllm==0.22.1",
 ]
 
+# Exactly one of the four environments below must be installed; they pin
+# mutually exclusive Torch/vLLM/Transformers stacks.
 [project.optional-dependencies]
+# CPU only (any platform): plain Transformers generation, i.e. the "TRL" backend.
+trl = [
+  "accelerate==1.13.0",
+  "datasets==5.0.0",
+  "torch==2.11.0",
+  "transformers==5.10.2",
+]
+# NVIDIA CUDA: vLLM 0.22.1 from PyPI, which ships the CUDA kernels and pins Torch.
+vllm = [
+  "accelerate==1.13.0",
+  "datasets==5.0.0",
+  "transformers==5.10.2",
+  "vllm==0.22.1; sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+# AMD ROCm: the ROCm 7.2.2 build of vLLM 0.22.1 plus its AMD-patched wheels.
+vllm-rocm = [
+  "amd-aiter==0.1.13; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "amdsmi==26.2.2; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "datasets==5.0.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "flash-attn==2.8.3; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "torch==2.10.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "torchaudio==2.9.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "torchvision==0.24.1; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "transformers==5.10.2; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "triton==3.6.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "triton-kernels==1.0.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "vllm==0.22.1; sys_platform == 'linux' and platform_machine == 'x86_64'",
+]
+# Apple Silicon: vLLM 0.33.0 core plus the vllm-metal plugin (MLX backend).
+vllm-metal = [
+  "accelerate>=0.26.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "datasets>=5.1.0,<6; sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "torch>=2.14.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "transformers>=5.16.1,<5.21.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "vllm==0.33.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "vllm-metal==0.33.0; sys_platform == 'darwin' and platform_machine == 'arm64'",
+]
 dev = ["pytest>=8", "ruff>=0.9"]
 
 [project.scripts]
@@ -46,3 +80,60 @@ pythonpath = ["."]
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+
+[tool.uv]
+# Supported platforms. Declaring them keeps the Intel-Mac and other unrelated
+# splits out of the universal resolution (vLLM has no wheel for those).
+environments = [
+  "sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "sys_platform == 'linux' and platform_machine == 'aarch64'",
+  "sys_platform == 'darwin' and platform_machine == 'arm64'",
+  "sys_platform == 'win32'",
+]
+
+# The environments pin incompatible Torch/vLLM/Transformers versions, so uv
+# resolves each of them separately instead of unifying them in one lockfile.
+conflicts = [
+  [{ extra = "trl" }, { extra = "vllm" }],
+  [{ extra = "trl" }, { extra = "vllm-rocm" }],
+  [{ extra = "trl" }, { extra = "vllm-metal" }],
+  [{ extra = "vllm" }, { extra = "vllm-rocm" }],
+  [{ extra = "vllm" }, { extra = "vllm-metal" }],
+  [{ extra = "vllm-rocm" }, { extra = "vllm-metal" }],
+]
+
+[tool.uv.sources]
+# CPU builds of Torch for the TRL environment, AMD builds for ROCm.
+torch = [
+  { index = "pytorch-cpu", extra = "trl" },
+  { index = "vllm-rocm722", extra = "vllm-rocm" },
+]
+# vLLM: the ROCm wheel for AMD, the macOS CPU wheel for Metal; PyPI (CUDA) otherwise.
+vllm = [
+  { index = "vllm-rocm722", extra = "vllm-rocm" },
+  { url = "https://github.com/vllm-project/vllm/releases/download/v0.33.0rc3/vllm-0.33.0%2Bcpu-cp38-abi3-macosx_11_0_arm64.whl", extra = "vllm-metal", marker = "sys_platform == 'darwin' and platform_machine == 'arm64'" },
+]
+# vllm-metal is not published to PyPI; use the prebuilt Apple Silicon wheel.
+vllm-metal = [
+  { url = "https://github.com/vllm-project/vllm-metal/releases/download/v0.33.0/vllm_metal-0.33.0-cp312-cp312-macosx_15_0_arm64.whl", extra = "vllm-metal", marker = "sys_platform == 'darwin' and platform_machine == 'arm64'" },
+]
+# AMD-patched wheels pinned by the ROCm build of vLLM. PyPI has no equivalents,
+# or only source distributions that would need a GPU toolchain to build.
+torchvision = [{ index = "vllm-rocm722", extra = "vllm-rocm" }]
+torchaudio = [{ index = "vllm-rocm722", extra = "vllm-rocm" }]
+triton = [{ index = "vllm-rocm722", extra = "vllm-rocm" }]
+triton-kernels = [{ index = "vllm-rocm722", extra = "vllm-rocm" }]
+amdsmi = [{ index = "vllm-rocm722", extra = "vllm-rocm" }]
+amd-aiter = [{ index = "vllm-rocm722", extra = "vllm-rocm" }]
+flash-attn = [{ index = "vllm-rocm722", extra = "vllm-rocm" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+# Version-pinned ROCm wheel index: https://wheels.vllm.ai/rocm/<vllm>/<rocm>/
+[[tool.uv.index]]
+name = "vllm-rocm722"
+url = "https://wheels.vllm.ai/rocm/0.22.1/rocm722/"
+explicit = true

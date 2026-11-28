@@ -54,18 +54,41 @@ ace = load_dataset("tum-ai/toumaii-toolace", "default", split="train", streaming
 ## Repository layout
 
 - [`config.yaml`](config.yaml) defines the source, generation backend, and outputs.
+- [`config.toolace.yaml`](config.toolace.yaml) runs the same pipeline on ToolACE instead of Toucan.
 - [`tool_calling_data_generation/`](tool_calling_data_generation/) contains source adapters,
   Transformers and vLLM generation backends, scoring, and export.
 - [`tests/`](tests/) covers the generator and its integrations.
 
 ## Install
 
-From this directory, install the project with
-[`uv`](https://docs.astral.sh/uv/):
+The ML stack depends on your accelerator. Each is a separate extra in
+`pyproject.toml`, and `[tool.uv] conflicts` keeps uv from unifying them.
 
-```bash
-uv sync
-```
+| Environment | Install | Stack |
+| --- | --- | --- |
+| CPU (any platform) | `uv sync --extra trl` | Transformers 5.10.2 + CPU Torch 2.11.0, no vLLM |
+| NVIDIA CUDA (Linux) | `uv sync --extra vllm` | vLLM 0.22.1 + Torch 2.11.0 from PyPI |
+| AMD ROCm 7.2.2 (Linux x86_64) | `uv sync --extra vllm-rocm` | vLLM 0.22.1 + AMD Torch/triton wheels |
+| Apple Silicon (macOS 15+) | `uv sync --extra vllm-metal` | vLLM 0.33.0 + vllm-metal 0.33.0 (MLX) |
+
+Run these from this directory with [`uv`](https://docs.astral.sh/uv/), and add
+`--extra dev` for `pytest` and `ruff`. `uv run` resynchronizes the environment,
+so repeat the same extra on every command (`uv run --extra trl tool-data-gen …`)
+or activate the environment once with `source .venv/bin/activate`.
+
+Notes:
+
+- The `trl` extra is the plain Transformers backend used when vLLM is absent; it
+  needs no CUDA/ROCm runtime and runs on CPU.
+- The `vllm` and `vllm-rocm` extras only install their stack on Linux; use
+  `vllm-metal` on Apple Silicon.
+- `vllm-metal` pins Torch 2.14.0, the version vLLM 0.33.0 itself requires.
+  Upstream's installer additionally moves Torch to a nightly build for its
+  experimental PyTorch path (`VLLM_METAL_BACKEND=mps`); the default MLX backend
+  used here does not need it.
+- The ROCm index points at the vLLM 0.22.1 / ROCm 7.2.2 wheel tree. For another
+  driver, change `vllm-rocm722` in `[[tool.uv.index]]` to the matching
+  `https://wheels.vllm.ai/rocm/<vllm-version>/<rocm-build>/` index.
 
 ## Generate locally
 
@@ -74,13 +97,13 @@ count. For a quick local check, temporarily set `source.toucan.size` to a small
 number such as `2`.
 
 ```bash
-uv run tool-data-gen validate --config config.yaml
-uv run tool-data-gen generate --config config.yaml
+uv run --extra trl tool-data-gen validate --config config.yaml
+uv run --extra trl tool-data-gen generate --config config.yaml
 ```
 
-Each run creates a timestamped directory under the configured output root with
-`canonical`, `dpo`, and `sft` Parquet files, optional JSONL/CSV previews,
-and `manifest.json`.
+Swap `trl` for the extra you installed. Each run creates a timestamped directory
+under the configured output root with `canonical`, `dpo`, and `sft` Parquet
+files, optional JSONL/CSV previews, and `manifest.json`.
 
 ## Upload to a private Hugging Face organization
 

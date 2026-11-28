@@ -6,7 +6,7 @@ source:
     dataset_id: Agent-Ark/Toucan-1.5M
     dataset_revision: null
     dataset_name: Qwen3
-    size: 1000
+    size: 100
     access_mode: full
     subset_name: multi-turn
     toolcall_mode: multi
@@ -33,7 +33,7 @@ output:
   write_csv_preview: true
 
 hub:
-  repo_id: YOUR_ORG/toucan-dpo
+  repo_id: kesava89/toucan-dpo-discard
   private: true
   split: train
   canonical_config: canonical
