@@ -39,19 +39,19 @@ vllm = [
   "transformers==5.10.2",
   "vllm==0.22.1; sys_platform == 'linux' and platform_machine == 'x86_64'",
 ]
-# AMD ROCm: the ROCm 7.2.2 build of vLLM 0.22.1 plus its AMD-patched wheels.
+# AMD ROCm 10.0: the rocm100 build of vLLM 0.34.0 plus the AMD-patched wheels it
+# pins. `triton-kernels` is gone; vLLM 0.34.0 depends on `conch-triton-kernels` (PyPI).
 vllm-rocm = [
-  "amd-aiter==0.1.13; sys_platform == 'linux' and platform_machine == 'x86_64'",
-  "amdsmi==26.2.2; sys_platform == 'linux' and platform_machine == 'x86_64'",
-  "datasets==5.0.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "amd-aiter==0.1.28.post1; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "amdsmi==27.0.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "datasets==5.2.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
   "flash-attn==2.8.3; sys_platform == 'linux' and platform_machine == 'x86_64'",
-  "torch==2.10.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
-  "torchaudio==2.9.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
-  "torchvision==0.24.1; sys_platform == 'linux' and platform_machine == 'x86_64'",
-  "transformers==5.10.2; sys_platform == 'linux' and platform_machine == 'x86_64'",
-  "triton==3.6.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
-  "triton-kernels==1.0.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
-  "vllm==0.22.1; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "torch==2.13.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "torchaudio==2.11.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "torchvision==0.28.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "transformers==5.20.2; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "triton==3.8.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
+  "vllm==0.34.0; sys_platform == 'linux' and platform_machine == 'x86_64'",
 ]
 # Apple Silicon: vLLM 0.33.0 core plus the vllm-metal plugin (MLX backend).
 vllm-metal = [
@@ -102,15 +102,21 @@ conflicts = [
   [{ extra = "vllm-rocm" }, { extra = "vllm-metal" }],
 ]
 
+# The ROCm index is supplementary rather than exclusive, so uv has to consider
+# all indexes for a name instead of stopping at the first one that lists it.
+# Exact pins keep this safe: every package the AMD stack takes from the ROCm
+# index has a single matching version there.
+index-strategy = "unsafe-best-match"
+
 [tool.uv.sources]
 # CPU builds of Torch for the TRL environment, AMD builds for ROCm.
 torch = [
   { index = "pytorch-cpu", extra = "trl" },
-  { index = "vllm-rocm722", extra = "vllm-rocm" },
+  { index = "vllm-rocm100", extra = "vllm-rocm" },
 ]
 # vLLM: the ROCm wheel for AMD, the macOS CPU wheel for Metal; PyPI (CUDA) otherwise.
 vllm = [
-  { index = "vllm-rocm722", extra = "vllm-rocm" },
+  { index = "vllm-rocm100", extra = "vllm-rocm" },
   { url = "https://github.com/vllm-project/vllm/releases/download/v0.33.0rc3/vllm-0.33.0%2Bcpu-cp38-abi3-macosx_11_0_arm64.whl", extra = "vllm-metal", marker = "sys_platform == 'darwin' and platform_machine == 'arm64'" },
 ]
 # vllm-metal is not published to PyPI; use the prebuilt Apple Silicon wheel.
@@ -119,13 +125,12 @@ vllm-metal = [
 ]
 # AMD-patched wheels pinned by the ROCm build of vLLM. PyPI has no equivalents,
 # or only source distributions that would need a GPU toolchain to build.
-torchvision = [{ index = "vllm-rocm722", extra = "vllm-rocm" }]
-torchaudio = [{ index = "vllm-rocm722", extra = "vllm-rocm" }]
-triton = [{ index = "vllm-rocm722", extra = "vllm-rocm" }]
-triton-kernels = [{ index = "vllm-rocm722", extra = "vllm-rocm" }]
-amdsmi = [{ index = "vllm-rocm722", extra = "vllm-rocm" }]
-amd-aiter = [{ index = "vllm-rocm722", extra = "vllm-rocm" }]
-flash-attn = [{ index = "vllm-rocm722", extra = "vllm-rocm" }]
+torchvision = [{ index = "vllm-rocm100", extra = "vllm-rocm" }]
+torchaudio = [{ index = "vllm-rocm100", extra = "vllm-rocm" }]
+triton = [{ index = "vllm-rocm100", extra = "vllm-rocm" }]
+amdsmi = [{ index = "vllm-rocm100", extra = "vllm-rocm" }]
+amd-aiter = [{ index = "vllm-rocm100", extra = "vllm-rocm" }]
+flash-attn = [{ index = "vllm-rocm100", extra = "vllm-rocm" }]
 
 [[tool.uv.index]]
 name = "pytorch-cpu"
@@ -133,7 +138,11 @@ url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
 # Version-pinned ROCm wheel index: https://wheels.vllm.ai/rocm/<vllm>/<rocm>/
+# Deliberately not `explicit`: torch 2.13's metadata pulls AMD meta-packages
+# (`rocm[libraries]`, `rocm-sdk-*`, `amd-torch-device-gfx*`,
+# `amd-torchvision-device-gfx*`) that are not listed in [tool.uv.sources] and
+# only exist at these versions here. With `unsafe-best-match` above, pinned
+# names still resolve to their PyPI versions while these find their only match.
 [[tool.uv.index]]
-name = "vllm-rocm722"
-url = "https://wheels.vllm.ai/rocm/0.22.1/rocm722/"
-explicit = true
+name = "vllm-rocm100"
+url = "https://wheels.vllm.ai/rocm/0.34.0/rocm100/"

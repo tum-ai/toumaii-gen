@@ -68,7 +68,7 @@ The ML stack depends on your accelerator. Each is a separate extra in
 | --- | --- | --- |
 | CPU (any platform) | `uv sync --extra trl` | Transformers 5.10.2 + CPU Torch 2.11.0, no vLLM |
 | NVIDIA CUDA (Linux) | `uv sync --extra vllm` | vLLM 0.22.1 + Torch 2.11.0 from PyPI |
-| AMD ROCm 7.2.2 (Linux x86_64) | `uv sync --extra vllm-rocm` | vLLM 0.22.1 + AMD Torch/triton wheels |
+| AMD ROCm 10.0 (Linux x86_64) | `uv sync --extra vllm-rocm` | vLLM 0.34.0 (rocm100) + AMD Torch 2.13.0/triton wheels |
 | Apple Silicon (macOS 15+) | `uv sync --extra vllm-metal` | vLLM 0.33.0 + vllm-metal 0.33.0 (MLX) |
 
 Run these from this directory with [`uv`](https://docs.astral.sh/uv/), and add
@@ -86,9 +86,10 @@ Notes:
   Upstream's installer additionally moves Torch to a nightly build for its
   experimental PyTorch path (`VLLM_METAL_BACKEND=mps`); the default MLX backend
   used here does not need it.
-- The ROCm index points at the vLLM 0.22.1 / ROCm 7.2.2 wheel tree. For another
-  driver, change `vllm-rocm722` in `[[tool.uv.index]]` to the matching
-  `https://wheels.vllm.ai/rocm/<vllm-version>/<rocm-build>/` index.
+- The ROCm index points at the vLLM 0.34.0 / ROCm 10.0 wheel tree. For another
+  driver, change `vllm-rocm100` in `[[tool.uv.index]]` to the matching
+  `https://wheels.vllm.ai/rocm/<vllm-version>/<rocm-build>/` index and update the
+  matching pins in the `vllm-rocm` extra.
 
 ## Generate locally
 
