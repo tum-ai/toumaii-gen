@@ -1,5 +1,6 @@
 import logging
 import os
+from importlib.util import find_spec
 from typing import List
 
 from vllm import LLM, SamplingParams
@@ -71,17 +72,20 @@ class vLLMGenerator(BaseGenerator):
     def unload_backend(self) -> None:
         """Unload the model and free GPU/CPU resources.
 
-        Uses vLLM's sleep mode (level 2) to discard all GPU memory
-        (weights + KV cache) across all worker processes, then drops
-        Python references and forces GC.
+        Use sleep level 1 with the vLLM Metal plugin, which does not support
+        level 2. Other vLLM backends use level 2 to discard weights and KV
+        cache before Python references are dropped and GC is forced.
         """
         if hasattr(self, "_llm"):
+            sleep_level = 1 if find_spec("vllm_metal") is not None else 2
             try:
-                self._llm.sleep(level=2)
+                self._llm.sleep(level=sleep_level)
             except Exception:
                 logger = logging.getLogger(__name__)
                 logger.warning(
-                    "vLLM sleep(level=2) failed; falling back to del", exc_info=True
+                    "vLLM sleep(level=%s) failed; falling back to del",
+                    sleep_level,
+                    exc_info=True,
                 )
             del self._llm
         if hasattr(self, "tokenizer"):

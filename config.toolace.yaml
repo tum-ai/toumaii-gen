@@ -6,7 +6,7 @@ source:
   toolace:
     # Raw Team-ACE/ToolACE conversations to read before sanitization; malformed
     # rows are dropped, so the final row count can be smaller.
-    size: 10
+    size: 1000
     use_disk_cache: true
 
 generation:
